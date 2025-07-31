@@ -146,16 +146,16 @@ def thank_you(request):
     return render(request, 'thankyou.html')
 
 
-def updateblog(request,id):
-    data = get_object_or_404(Blog,id=id)
+def updateblog(request, id):
+    data = get_object_or_404(Blog, id=id)
     if request.method == 'POST':
         data.title = request.POST['title']
         data.content = request.POST['content']
-        data.images = request.FILES.get('images')
+        if request.FILES.get('images'): 
+            data.images = request.FILES.get('images')
         data.save()
         return redirect('dashboard')
-        
-    return render(request,'dashboard.html')
+    return render(request, 'dashboard.html')
 
 def deleteblog(request,id):
     data = get_object_or_404(Blog,id=id)
