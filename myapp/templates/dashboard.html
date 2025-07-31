@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+ <section class="py-5 text-center bg-light ">
+    <div class="container mt-5">
+                       <!-- Messages -->
+                {% if messages %}
+                <div class="alert-container">
+                    {% for message in messages %}
+                    <div class="alert 
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert-danger
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}alert-warning
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}alert-info
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}alert-success
+                        {% else %}alert-secondary{% endif %}">
+                        {{ message }}
+                        <button type="button" class="btn btn-close  btn-danger" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+      <h1 class="display-4">Welcome to My Blog</h1>
+      <p class="lead">Insights, stories, and tutorials on web development and more.</p>
+    </div>
+  </section>
+  <form method="GET" class="d-flex mb-4" role="search">
+  <input class="form-control me-2" type="search" name="query" placeholder="Search blogs..." value="{{ query|default_if_none:'' }}">
+  <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+  <!-- --------button of Add Blog --> 
+   {% if request.session.user_id %}
+  <div class="text-center mb-4 mt-5">
+    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#blogbtn">Add Blog</a>
+  </div>
+  {% endif %}
+  <!-- End of button Add Blog -->
+  
+
+
+
+
+<!-- Blog Section -->
+<section class="container py-5">
+  <div class="row">
+    {% if blogs %}
+    {% for i in blogs %}
+    <div class="col-md-6 col-lg-4 mb-4 blog-post">
+      <div class="card h-100 shadow-sm">
+        <img src="{{ i.images.url }}" class="mt-2 img-fluid w-50 rounded shadow mx-auto d-block" alt="Post Image"/>
+        <div class="card-body">
+          <p class="card-title">Create_By 👉 {{ i.author }}</p>
+          <h5 class="card-title">Title 👉 {{ i.title }}</h5>
+          <p class="card-text">Create_At 👉 {{ i.created_at|date:"F d" }}</p>
+
+          <!-- Read More button triggers modal with unique ID -->
+           {% if request.session.user_id %}
+          <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#blogModal{{ i.id }}">Read More</a>
+          {% else %}
+          <a href="#" class="btn btn-outline-primary"  onclick="alert('Please login to read more!')">Read More</a>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for each blog -->
+    <div class="modal fade" id="blogModal{{ i.id }}" tabindex="-1" aria-labelledby="blogModalLabel{{ i.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content backdrop-blur">
+          <div class="modal-header">
+            <h5 class="modal-title" id="blogModalLabel{{ i.id }}">✨{{ i.author }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Blog Image -->
+            <div class="text-center mb-4">
+              <img src="{{ i.images.url }}" alt="Blog Image" class="img-fluid rounded shadow" style="max-height: 300px; object-fit: cover;">
+            </div>
+            <!-- Blog Title -->
+            <h3 class="mb-3">Title 👉 {{ i.title }}</h3>
+            <!-- Blog Content -->
+            <p class="mb-4">Content 👉. {{ i.content }}</p>
+
+            <!-- Static Comment Form -->
+            <div class="border-top pt-3">
+          <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="blog_id" value="{{ i.id }}">
+          <div class="mb-3">
+          <textarea class="form-control" name="comment" rows="2" placeholder="Write comment..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+        </form> 
+            </div>
+            <h6 class="mb-3 mt-4">📝 Comments</h6>
+            {% for j in comment %}
+                  {% if j.blog.id == i.id %}
+            <!-- Dummy Comment Section -->
+            <div class="mt-4">
+              <ul class="list-group">
+                 <li class="list-group-item">
+          {{ j.comment }}<br>
+          <small class="text-muted">Comment by 👉 {{ j.author }}</small>
+        </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% empty %}
+            <div class="mt-4">
+              <p class="text-muted">No comments yet. Be the first to comment!</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% endfor %}
+    {% else %}
+      <div class="alert alert-warning text-center">No blog posts found.</div>
+    {% endif %}
+  </div>
+</section>
+
+
+
+
+
+<!-- ------------------add Blog -------------  -->
+<div class="modal fade" id="blogbtn" tabindex="-1" aria-labelledby="blogbtnLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content backdrop-blur">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Blog</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" placeholder="Enter title" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea name="content" class="form-control" rows="4" placeholder="Write your blog here..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label for="images" class="form-label">Upload Image</label>
+            <input type="file" name="images" class="form-control">
+          </div>
+
+          <button type="submit" class="btn btn-sm btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- --------------pagination--------------- -->
+<div class="d-flex justify-content-center mt-4">
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&query={{ query }}{% endif %}">Previous</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+      </li>
+      {% endif %}
+
+      <li class="page-item disabled">
+        <span class="page-link">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+      </li>
+
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&query={{ query }}{% endif %}">Next</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next</span>
+      </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+</div>
+
+
+{% endblock %}

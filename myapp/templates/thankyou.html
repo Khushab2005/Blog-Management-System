@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<section class="vh-100" style="background-color: #eee;">
+  <div class="container h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-12 col-xl-11">
+        <div class="card text-black" style="border-radius: 25px;">
+          <div class="card-body p-md-5">
+            <div class="row justify-content-center">
+             <!-- Messages -->
+                {% if messages %}
+                <div class="alert-container">
+                    {% for message in messages %}
+                    <div class="alert 
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert-danger
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}alert-warning
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}alert-info
+                        {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}alert-success
+                        {% else %}alert-secondary{% endif %}">
+                        {{ message }}
+                        <button type="button" class="btn btn-close  btn-danger" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+              <!-- IMAGE: Left side -->
+              <div class="col-md-10 col-lg-6 col-xl-6 d-flex align-items-center">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
+                     class="img-fluid" alt="Sample image">
+              </div>
+   
+              <!-- FORM: Right side -->
+              <h1 class="text-center">Thank You !</h1>
+              <a href="{% url 'home' %}" class="text-center">Go to Home</a>
+              <div class="col-md-10 col-lg-6 col-xl-6">
+                
+                <hr>
+                 <!-- Messages -->
+   
+
+              </div>
+              <!-- End form -->
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
